@@ -1,6 +1,6 @@
 /******************************************************************
  *
- *   YOUR NAME / SECTION NUMBER
+ *   Mehwish Tabassum / 272 - 002
  *
  *   Note, additional comments provided throughout this source code
  *   is for educational purposes
@@ -25,9 +25,14 @@ public class Graph {
   List<Integer> vertexValues;       // vertex values
 
   // Constructor 
+  @SuppressWarnings("unchecked")
   public Graph(int numV) {
     numVertices = numV;
     adjListArr = new LinkedList[numVertices];
+    for (int i = 0; i < numVertices; i++) {
+    adjListArr[i] = new LinkedList<Integer>();
+}
+
     vertexValues = new ArrayList<>(numVertices);
 
     for (int i = 0; i < numVertices; i++) {
@@ -102,9 +107,29 @@ public class Graph {
    * 
    */
   
-  public int findRoot() {
+   public int findRoot() {
+    int[] inDegree = new int[numVertices];
 
-    // ADD YOUR CODE HERE - DO NOT FORGET TO ADD YOUR NAME/SECTION AT TOP OF FILE
-    return -1;
-  } 
+    // Calculate in-degrees
+    for (int i = 0; i < numVertices; i++) {
+        for (int neighbor : adjListArr[i]) {
+            inDegree[neighbor]++;
+        }
+    }
+
+    int root = -1;
+
+    // Find the root vertex (in-degree = 0)
+    for (int i = 0; i < numVertices; i++) {
+        if (inDegree[i] == 0) {
+            if (root != -1) {
+                return -1; // More than one root
+            }
+            root = i;
+        }
+    }
+
+    // Return root's value or -1 if no root
+    return root == -1 ? -1 : (vertexValues.get(root) == null ? -1 : vertexValues.get(root));
+  }
 }

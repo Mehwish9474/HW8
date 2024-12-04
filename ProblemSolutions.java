@@ -1,6 +1,6 @@
 /******************************************************************
  *
- *   ADD YOUR NAME / SECTION NUMBER HERE
+ *   Mehwish Tabassum / 272 - 002
  *
  *   This java file contains the problem solutions of canFinish and
  *   numGroups methods.
@@ -72,21 +72,48 @@ class ProblemSolutions {
      * @return boolean          - True if all exams can be taken, else false.
      */
 
-    public boolean canFinish(int numExams, 
-                             int[][] prerequisites) {
-      
-        int numNodes = numExams;  // # of nodes in graph
-
-        // Build directed graph's adjacency list
-        ArrayList<Integer>[] adj = getAdjList(numExams, 
-                                        prerequisites); 
-
-        // ADD YOUR CODE HERE - ADD YOUR NAME / SECTION AT TOP OF FILE
-        return false;
-
+     public boolean canFinish(int numExams, int[][] prerequisites) {
+        @SuppressWarnings("unchecked")
+        ArrayList<Integer>[] adj = new ArrayList[numExams];
+        int[] inDegree = new int[numExams];
+    
+        // Initialize adjacency list and in-degree array
+        for (int i = 0; i < numExams; i++) {
+            adj[i] = new ArrayList<>();
+        }
+    
+        for (int[] edge : prerequisites) {
+            adj[edge[1]].add(edge[0]);
+            inDegree[edge[0]]++;
+        }
+    
+        // Use a queue for topological sorting (Kahn's Algorithm)
+        Queue<Integer> queue = new LinkedList<>();
+        for (int i = 0; i < numExams; i++) {
+            if (inDegree[i] == 0) {
+                queue.add(i);
+            }
+        }
+    
+        int processedNodes = 0;
+        while (!queue.isEmpty()) {
+            int current = queue.poll();
+            processedNodes++;
+    
+            for (int neighbor : adj[current]) {
+                inDegree[neighbor]--;
+                if (inDegree[neighbor] == 0) {
+                    queue.add(neighbor);
+                }
+            }
+        }
+    
+        // Debug Output
+        System.out.println("Processed nodes: " + processedNodes + ", Total nodes: " + numExams);
+    
+        // Return true if all nodes were processed (no cycle)
+        return processedNodes == numExams;
     }
-
-
     /**
      * Method getAdjList
      *
@@ -98,20 +125,6 @@ class ProblemSolutions {
      * @return ArrayList<Integer>[]  - An adjacency list representing the provided graph.
      */
 
-    private ArrayList<Integer>[] getAdjList(
-            int numNodes, int[][] edges) {
-
-        ArrayList<Integer>[] adj 
-                    = new ArrayList[numNodes];      // Create an array of ArrayList ADT
-
-        for (int node = 0; node < numNodes; node++){
-            adj[node] = new ArrayList<Integer>();   // Allocate empty ArrayList per node
-        }
-        for (int[] edge : edges){
-            adj[edge[0]].add(edge[1]);              // Add connected node edge [1] for node [0]
-        }
-        return adj;
-    }
 
 
     /*
@@ -163,36 +176,42 @@ class ProblemSolutions {
      *   edge. So they form on large group.
      */
 
-    public int numGroups(int[][] adjMatrix) {
-        int numNodes = adjMatrix.length;
-        Map<Integer,List<Integer>> graph = new HashMap();
-        int i = 0, j =0;
-
-        /*
-         * Converting the Graph Adjacency Matrix to
-         * an Adjacency List representation. This
-         * sample code illustrates a technique to do so.
-         */
-
-        for(i = 0; i < numNodes ; i++){
-            for(j = 0; j < numNodes; j++){
-                if( adjMatrix[i][j] == 1 && i != j ){
-                    // Add AdjList for node i if not there
-                    graph.putIfAbsent(i, new ArrayList());
-                    // Add AdjList for node j if not there
-                    graph.putIfAbsent(j, new ArrayList());
-
-                    // Update node i adjList to include node j
-                    graph.get(i).add(j);
-                    // Update node j adjList to include node i
-                    graph.get(j).add(i);
+     public int numGroups(int[][] adjMatrix) {
+        if (adjMatrix == null || adjMatrix.length == 0) {
+            return 0; // Handle empty matrix
+        }
+    
+        int n = adjMatrix.length;
+        boolean[] visited = new boolean[n];
+        int groupCount = 0;
+    
+        // Ensure symmetry for undirected graph
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (adjMatrix[i][j] != adjMatrix[j][i]) {
+                    adjMatrix[i][j] = adjMatrix[j][i] = 1;
                 }
             }
         }
-
-        // YOUR CODE GOES HERE - you can add helper methods, you do not need
-        // to put all code in this method.
-        return -1;
+    
+        // Count connected groups using DFS
+        for (int i = 0; i < n; i++) {
+            if (!visited[i]) {
+                groupCount++;
+                dfsTraverse(adjMatrix, visited, i);
+            }
+        }
+    
+        return groupCount;
     }
-
+    
+    private void dfsTraverse(int[][] adjMatrix, boolean[] visited, int node) {
+        visited[node] = true;
+    
+        for (int neighbor = 0; neighbor < adjMatrix.length; neighbor++) {
+            if (adjMatrix[node][neighbor] == 1 && !visited[neighbor]) {
+                dfsTraverse(adjMatrix, visited, neighbor);
+            }
+        }
+    }                                             
 }
